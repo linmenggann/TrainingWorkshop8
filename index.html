@@ -236,6 +236,53 @@
     <script>
         // 【重要】請將下方的字串替換為您剛剛部署的 Google Apps Script 網頁應用程式 URL
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzTJYJKKno2SE9Ufo9j89zo0b120nZD3n1Wd02TQe-0axF1MJg9QSN63rEZnzdpSCjQNQ/exec';
+        const MAX_CAPACITY = 4; // ⭐ 新增：設定報名人數上限
+
+        // ⭐ 新增：網頁載入時自動檢查目前報名人數
+        window.onload = checkCapacity;
+
+        function checkCapacity() {
+            const btn = document.querySelector('button[type="submit"]');
+            btn.innerHTML = '⏳ 檢查名額中...';
+            btn.disabled = true;
+
+            fetch(scriptURL)
+                .then(response => response.json())
+                .then(res => {
+                    if (res.status === 'success') {
+                        const currentCount = res.data.length;
+                        if (currentCount >= MAX_CAPACITY) {
+                            setFormFull();
+                        } else {
+                            btn.innerHTML = `🚀 立即報名送出！ (剩餘 ${MAX_CAPACITY - currentCount} 名)`;
+                            btn.disabled = false;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('檢查名額失敗', error);
+                    btn.innerHTML = '🚀 立即報名送出！';
+                    btn.disabled = false;
+                });
+        }
+
+        function setFormFull() {
+            const btn = document.querySelector('button[type="submit"]');
+            btn.innerHTML = '🚫 報名已額滿';
+            btn.classList.remove('from-pink-300', 'via-purple-300', 'to-indigo-300', 'hover:-translate-y-1', 'text-purple-900');
+            btn.classList.add('bg-gray-500', 'text-white', 'cursor-not-allowed');
+            btn.disabled = true;
+
+            // 禁用所有輸入框與選項
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => input.disabled = true);
+
+            // 顯示額滿提示
+            const msg = document.getElementById('successMsg');
+            msg.innerHTML = '🛑 感謝您的支持，本活動報名人數已達上限（4名），已停止受理報名。';
+            msg.classList.remove('hidden', 'bg-green-400/20', 'border-green-400/50');
+            msg.classList.add('bg-red-500/80', 'border-red-400/50', 'text-white', 'shadow-lg');
+        }
 
         function submitForm(event) {
             event.preventDefault(); // 阻止網頁重新整理
@@ -267,21 +314,22 @@
                     btn.classList.add('bg-green-400', 'text-green-900', 'font-extrabold');
                     
                     // 顯示成功訊息
-                    msg.classList.remove('hidden');
-                    msg.classList.add('animate-bounce');
+                    msg.innerHTML = '🎉 報名成功！期待您的參與！';
+                    msg.classList.remove('hidden', 'bg-red-500/80', 'border-red-400/50', 'text-white', 'shadow-lg');
+                    msg.classList.add('bg-green-400/20', 'border-green-400/50', 'animate-bounce');
 
                     // 將表單欄位清空以便下一個人填寫
                     document.getElementById('workshopForm').reset();
 
-                    // 設定 3 秒後自動恢復按鈕與提示訊息狀態，以便填寫第二筆
+                    // ⭐ 修改：設定 3 秒後恢復UI並重新檢查名額
                     setTimeout(() => {
-                        btn.innerHTML = '🚀 立即報名送出！';
-                        btn.disabled = false;
                         btn.classList.remove('opacity-75', 'cursor-not-allowed', 'bg-green-400', 'text-green-900', 'font-extrabold');
                         btn.classList.add('from-pink-300', 'via-purple-300', 'to-indigo-300', 'hover:-translate-y-1', 'text-purple-900');
                         
                         msg.classList.add('hidden');
                         msg.classList.remove('animate-bounce');
+                        
+                        checkCapacity(); // 重新檢查是否額滿，若達4名會自動鎖死
                     }, 3000);
                 })
                 .catch(error => {
