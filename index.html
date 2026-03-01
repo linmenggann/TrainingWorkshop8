@@ -11,16 +11,9 @@
     <style>
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            /* 動態漸層背景 */
-            background: linear-gradient(-45deg, #4c1d95, #7e22ce, #c026d3, #db2777);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-        }
-
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            /* 將照片設為背景，並加上一層半透明漸層遮罩，確保文字與玻璃面板清晰可見 */
+            background: linear-gradient(rgba(76, 29, 149, 0.6), rgba(219, 39, 119, 0.6)), url('https://raw.githubusercontent.com/linmenggann/TrainingWorkshop8/main/%E5%90%B3%E5%9C%92__A1_A%E7%89%88.jpg') no-repeat center center fixed;
+            background-size: cover;
         }
 
         /* 玻璃擬物化 (Glassmorphism) 特效 */
