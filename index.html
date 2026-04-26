@@ -363,11 +363,15 @@
 
       const response = await fetch(APPS_SCRIPT_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
-      const result = await response.json();
+      let result = {};
+      try {
+        result = await response.json();
+      } catch (parseError) {
+        throw new Error('伺服器回應格式異常，請聯絡管理員。');
+      }
       if (!response.ok || result.status !== 200) {
         throw new Error(result.message || '送出失敗，請稍後再試。');
       }

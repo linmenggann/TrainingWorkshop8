@@ -55,7 +55,7 @@ function doPost(e) {
       return jsonResponse(400, '缺少 POST 內容');
     }
 
-    const data = JSON.parse(e.postData.contents);
+    const data = parsePostData(e);
 
     const requiredFields = [
       'name',
@@ -108,4 +108,29 @@ function jsonResponse(status, message, data) {
   return ContentService
     .createTextOutput(JSON.stringify({ status, message, data: data || null }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+function parsePostData(e) {
+  const postData = e.postData || {};
+  const contentType = String(postData.type || '').toLowerCase();
+  const raw = postData.contents || '';
+
+  if (contentType.includes('application/json')) {
+    return JSON.parse(raw || '{}');
+  }
+
+  if (raw) {
+    return Object.fromEntries(
+      raw
+        .split('&')
+        .filter(Boolean)
+        .map((pair) => {
+          const [k, v = ''] = pair.split('=');
+          return [decodeURIComponent((k || '').replace(/\+/g, ' ')), decodeURIComponent(v.replace(/\+/g, ' '))];
+        })
+    );
+  }
+
+  return {};
 }
