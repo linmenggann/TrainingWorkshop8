@@ -420,15 +420,36 @@
 
       let response;
       try {
+        const bodyParams = new URLSearchParams();
+        Object.entries(payload).forEach(([key, value]) => {
+          bodyParams.append(key, value == null ? '' : String(value));
+        });
+
         response = await fetch(APPS_SCRIPT_ENDPOINT, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
           },
-          body: JSON.stringify(payload)
+          body: bodyParams.toString()
         });
       } catch (networkError) {
-        throw new Error(`CORS/網路錯誤：${networkError.message || networkError}`);
+        try {
+          await fetch(APPS_SCRIPT_ENDPOINT, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+            },
+            body: new URLSearchParams(payload).toString()
+          });
+
+          return {
+            status: 200,
+            message: '已送出（no-cors 模式，無法讀取伺服器回應）'
+          };
+        } catch (fallbackError) {
+          throw new Error(`CORS/網路錯誤：${networkError.message || networkError}; no-cors 備援也失敗：${fallbackError.message || fallbackError}`);
+        }
       }
 
       const responseText = await response.text();
