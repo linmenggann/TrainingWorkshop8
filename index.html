@@ -343,8 +343,61 @@
     const statusMessage = document.getElementById('statusMessage');
 
     function setStatus(message, type) {
-      statusMessage.textContent = message;
+      statusMessage.innerHTML = message;
       statusMessage.className = `status ${type || ''}`;
+    }
+
+    function isLikelyAppsScriptUrl(url) {
+      try {
+        const parsed = new URL(url);
+        return parsed.hostname === 'script.google.com' && /\/macros\/s\/.+\/exec$/.test(parsed.pathname);
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function classifySubmissionError(error) {
+      const detail = error && error.message ? error.message : String(error || '未知錯誤');
+
+      if (/endpoint 設定錯誤|Invalid URL|Failed to construct 'URL'/i.test(detail)) {
+        return {
+          category: 'URL 設定錯誤',
+          suggestion: '請確認前端 APPS_SCRIPT_ENDPOINT 為最新 Web App URL（結尾需為 /exec）。'
+        };
+      }
+
+      if (/CORS|Failed to fetch|NetworkError|Load failed/i.test(detail)) {
+        return {
+          category: '連線/CORS 問題',
+          suggestion: '多半是部署權限或網路問題。請確認 Apps Script 已部署為 Web App，且存取權為「任何知道連結的人」。'
+        };
+      }
+
+      if (/缺少必要欄位/i.test(detail)) {
+        return {
+          category: '欄位驗證失敗',
+          suggestion: '有必填欄位未傳入，請確認表單欄位是否完整填寫。'
+        };
+      }
+
+      if (/找不到工作表/i.test(detail)) {
+        return {
+          category: '試算表設定問題',
+          suggestion: '請在 Apps Script 執行 setupSheet()，並確認分頁名稱為「工作坊報名資料」。'
+        };
+      }
+
+      if (/伺服器回應格式異常/i.test(detail)) {
+        return {
+          category: '回應格式異常',
+          suggestion: '目前收到非 JSON 回應，常見於網址打錯或未使用最新部署版本。'
+        };
+      }
+
+      return {
+        category: '未分類錯誤',
+        suggestion: '請先確認部署版本與 endpoint，並查看 Apps Script 執行記錄。'
+      };
     }
 
     async function submitRegistration(formData) {
@@ -361,13 +414,22 @@
         note: formData.get('note') || ''
       };
 
-      const response = await fetch(APPS_SCRIPT_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
+      if (!isLikelyAppsScriptUrl(APPS_SCRIPT_ENDPOINT)) {
+        throw new Error(`endpoint 設定錯誤：${APPS_SCRIPT_ENDPOINT}`);
+      }
+
+      let response;
+      try {
+        response = await fetch(APPS_SCRIPT_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+      } catch (networkError) {
+        throw new Error(`CORS/網路錯誤：${networkError.message || networkError}`);
+      }
 
       const responseText = await response.text();
       let result = {};
@@ -377,7 +439,7 @@
         throw new Error(responseText ? `伺服器回應格式異常：${responseText.slice(0, 120)}` : '伺服器回應格式異常，請聯絡管理員。');
       }
       if (!response.ok || result.status !== 200) {
-        throw new Error(result.message || '送出失敗，請稍後再試。');
+        throw new Error(`[HTTP ${response.status}] ${result.message || '送出失敗，請稍後再試。'}`);
       }
 
       return result;
@@ -394,7 +456,11 @@
         setStatus('✅ 報名成功！資料已送出，感謝您的填寫。', 'ok');
         form.reset();
       } catch (error) {
-        setStatus(`❌ 報名失敗：${error.message}`, 'error');
+        const diagnosis = classifySubmissionError(error);
+        setStatus(
+          `❌ 報名失敗（${diagnosis.category}）<br>原因：${error.message}<br>建議：${diagnosis.suggestion}`,
+          'error'
+        );
       } finally {
         submitBtn.disabled = false;
       }
