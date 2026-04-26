@@ -14,6 +14,10 @@
       --accent: #ffe66d;
       --border: rgba(255,255,255,0.24);
       --shadow: 0 20px 35px rgba(35, 6, 70, 0.35);
+      --input-bg: rgba(255,255,255,0.18);
+      --input-border: rgba(255,255,255,0.4);
+      --ok: #9cffc7;
+      --error: #ffd0d0;
     }
 
     * { box-sizing: border-box; }
@@ -36,7 +40,7 @@
     }
 
     .container {
-      max-width: 980px;
+      max-width: 1080px;
       margin: 0 auto;
       padding: 24px;
     }
@@ -82,7 +86,7 @@
       margin-top: 22px;
       display: grid;
       gap: 18px;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     }
 
     .card {
@@ -92,6 +96,10 @@
       padding: 20px;
       box-shadow: var(--shadow);
       backdrop-filter: blur(4px);
+    }
+
+    .form-card {
+      grid-column: 1 / -1;
     }
 
     h2 {
@@ -115,6 +123,79 @@
       margin: 0;
       padding-left: 1.1rem;
     }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    input, select, textarea, button {
+      font: inherit;
+      border-radius: 10px;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text);
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: rgba(255,255,255,0.72);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255, 230, 109, 0.24);
+    }
+
+    select option {
+      color: #2f214f;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 800;
+      background: linear-gradient(90deg, #ffe66d, #ffd166);
+      color: #402200;
+      border: none;
+      transition: transform 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+      transform: none;
+    }
+
+    .status {
+      margin-top: 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      min-height: 1.6em;
+    }
+
+    .status.ok { color: var(--ok); }
+    .status.error { color: var(--error); }
 
     .footer {
       margin-top: 20px;
@@ -155,19 +236,6 @@
       </article>
 
       <article class="card">
-        <h2>📝 報名資料欄位</h2>
-        <ul>
-          <li>姓名</li>
-          <li>機構名</li>
-          <li>職稱</li>
-          <li>負責的職類（藥事、醫事放射、醫事檢驗、護理、營養、呼吸治療、聽力、物理治療、職能治療、臨床心理、語言治療、其他）</li>
-          <li>是否擔任教學訓練計畫主持人（是 / 否）</li>
-          <li>預計參與方式（實體 / 線上）</li>
-          <li>Email 與聯繫電話</li>
-        </ul>
-      </article>
-
-      <article class="card">
         <h2>🤝 主辦與聯絡</h2>
         <dl>
           <dt>主辦單位</dt>
@@ -179,6 +247,85 @@
         </dl>
       </article>
 
+      <article class="card form-card">
+        <h2>📝 線上報名表</h2>
+        <form id="registrationForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="name">姓名 *</label>
+              <input id="name" name="name" required placeholder="請輸入姓名" />
+            </div>
+
+            <div class="form-group">
+              <label for="organization">機構名 *</label>
+              <input id="organization" name="organization" required placeholder="請輸入機構名稱" />
+            </div>
+
+            <div class="form-group">
+              <label for="title">職稱 *</label>
+              <input id="title" name="title" required placeholder="請輸入職稱" />
+            </div>
+
+            <div class="form-group">
+              <label for="professionCategory">負責的職類 *</label>
+              <select id="professionCategory" name="professionCategory" required>
+                <option value="">請選擇</option>
+                <option>藥事</option>
+                <option>醫事放射</option>
+                <option>醫事檢驗</option>
+                <option>護理</option>
+                <option>營養</option>
+                <option>呼吸治療</option>
+                <option>聽力</option>
+                <option>物理治療</option>
+                <option>職能治療</option>
+                <option>臨床心理</option>
+                <option>語言治療</option>
+                <option>其他</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="isProgramDirector">是否擔任教學訓練計畫主持人 *</label>
+              <select id="isProgramDirector" name="isProgramDirector" required>
+                <option value="">請選擇</option>
+                <option>是</option>
+                <option>否</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="attendanceMode">預計參與方式 *</label>
+              <select id="attendanceMode" name="attendanceMode" required>
+                <option value="">請選擇</option>
+                <option>實體</option>
+                <option>線上</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input id="email" name="email" type="email" required placeholder="name@example.com" />
+            </div>
+
+            <div class="form-group">
+              <label for="phone">聯繫電話 *</label>
+              <input id="phone" name="phone" required placeholder="請輸入手機或分機" />
+            </div>
+
+            <div class="form-group full">
+              <label for="note">備註</label>
+              <textarea id="note" name="note" rows="3" placeholder="可填寫其他說明"></textarea>
+            </div>
+
+            <div class="form-group full">
+              <button id="submitBtn" type="submit">送出報名</button>
+            </div>
+          </div>
+        </form>
+        <p id="statusMessage" class="status" aria-live="polite"></p>
+      </article>
+
       <article class="card">
         <h2>🌟 參與提醒</h2>
         <p>不論您選擇 <span class="highlight">實體</span> 或 <span class="highlight">線上</span>，都歡迎一起加入，交流教學訓練規劃經驗，激盪更多創新做法！🎉</p>
@@ -187,5 +334,63 @@
 
     <p class="footer">💡 本頁內容依據「教學訓練計畫主持人工作坊.docx」整理呈現。</p>
   </main>
+
+  <script>
+    const APPS_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbx-y2Zh-Lg8KuJ2P3yfl6BmwHylFV9ZC4w14z4intUwrtNFx0Go-cR3yrX3GISBXhjm5A/exec';
+
+    const form = document.getElementById('registrationForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const statusMessage = document.getElementById('statusMessage');
+
+    function setStatus(message, type) {
+      statusMessage.textContent = message;
+      statusMessage.className = `status ${type || ''}`;
+    }
+
+    async function submitRegistration(formData) {
+      const payload = {
+        name: formData.get('name'),
+        organization: formData.get('organization'),
+        title: formData.get('title'),
+        professionCategory: formData.get('professionCategory'),
+        isProgramDirector: formData.get('isProgramDirector'),
+        attendanceMode: formData.get('attendanceMode'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        sourcePage: '教學訓練計畫主持人工作坊頁面',
+        note: formData.get('note') || ''
+      };
+
+      const response = await fetch(APPS_SCRIPT_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      if (!response.ok || result.status !== 200) {
+        throw new Error(result.message || '送出失敗，請稍後再試。');
+      }
+
+      return result;
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setStatus('資料送出中，請稍候…');
+      submitBtn.disabled = true;
+
+      try {
+        const formData = new FormData(form);
+        await submitRegistration(formData);
+        setStatus('✅ 報名成功！資料已送出，感謝您的填寫。', 'ok');
+        form.reset();
+      } catch (error) {
+        setStatus(`❌ 報名失敗：${error.message}`, 'error');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
 </body>
 </html>
