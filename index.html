@@ -363,14 +363,18 @@
 
       const response = await fetch(APPS_SCRIPT_ENDPOINT, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(payload)
       });
 
+      const responseText = await response.text();
       let result = {};
       try {
-        result = await response.json();
+        result = responseText ? JSON.parse(responseText) : {};
       } catch (parseError) {
-        throw new Error('伺服器回應格式異常，請聯絡管理員。');
+        throw new Error(responseText ? `伺服器回應格式異常：${responseText.slice(0, 120)}` : '伺服器回應格式異常，請聯絡管理員。');
       }
       if (!response.ok || result.status !== 200) {
         throw new Error(result.message || '送出失敗，請稍後再試。');
