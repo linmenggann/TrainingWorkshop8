@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>教學訓練計畫主持人工作坊</title>
+  <style>
+    :root {
+      --bg1: #3b0a78;
+      --bg2: #7b2ff7;
+      --bg3: #f107a3;
+      --card: rgba(255, 255, 255, 0.12);
+      --text: #f5f1ff;
+      --accent: #ffe66d;
+      --border: rgba(255,255,255,0.24);
+      --shadow: 0 20px 35px rgba(35, 6, 70, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+      background-size: 200% 200%;
+      animation: moveBg 12s ease infinite;
+      line-height: 1.6;
+    }
+
+    @keyframes moveBg {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .hero {
+      background: linear-gradient(145deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3.2vw, 2.8rem);
+      letter-spacing: 0.04em;
+    }
+
+    .subtitle {
+      margin-top: 12px;
+      font-size: 1.1rem;
+      opacity: 0.95;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .grid {
+      margin-top: 22px;
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(4px);
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1.25rem;
+      color: var(--accent);
+    }
+
+    dl {
+      margin: 0;
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 8px 10px;
+    }
+
+    dt { font-weight: 700; opacity: 0.9; }
+    dd { margin: 0; }
+
+    ul {
+      margin: 0;
+      padding-left: 1.1rem;
+    }
+
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      opacity: 0.92;
+      font-size: 0.95rem;
+    }
+
+    .highlight {
+      font-weight: 800;
+      color: #fff4b2;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="hero">
+      <h1>🚀 教學訓練計畫主持人工作坊 🎓</h1>
+      <p class="subtitle">一起升級教學規劃力！歡迎參與充滿活力與創新的專業交流活動 💜</p>
+      <div class="badges">
+        <span class="badge">📅 2026/01/25</span>
+        <span class="badge">⏰ 9:00–16:00</span>
+        <span class="badge">📍 奇美醫院第五醫療大樓 6 樓 563 會議室</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>📌 活動資訊</h2>
+        <dl>
+          <dt>日期</dt>
+          <dd>2026/01/25</dd>
+          <dt>時間</dt>
+          <dd>9:00 ~ 16:00</dd>
+          <dt>地點</dt>
+          <dd>奇美醫院第五醫療大樓 6 樓 563 會議室</dd>
+        </dl>
+      </article>
+
+      <article class="card">
+        <h2>📝 報名資料欄位</h2>
+        <ul>
+          <li>姓名</li>
+          <li>機構名</li>
+          <li>職稱</li>
+          <li>負責的職類（藥事、醫事放射、醫事檢驗、護理、營養、呼吸治療、聽力、物理治療、職能治療、臨床心理、語言治療、其他）</li>
+          <li>是否擔任教學訓練計畫主持人（是 / 否）</li>
+          <li>預計參與方式（實體 / 線上）</li>
+          <li>Email 與聯繫電話</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>🤝 主辦與聯絡</h2>
+        <dl>
+          <dt>主辦單位</dt>
+          <dd>奇美醫院 教學部</dd>
+          <dt>聯絡人</dt>
+          <dd>陳大頭</dd>
+          <dt>聯絡電話</dt>
+          <dd>06-281-2811 分機 57 / 112233</dd>
+        </dl>
+      </article>
+
+      <article class="card">
+        <h2>🌟 參與提醒</h2>
+        <p>不論您選擇 <span class="highlight">實體</span> 或 <span class="highlight">線上</span>，都歡迎一起加入，交流教學訓練規劃經驗，激盪更多創新做法！🎉</p>
+      </article>
+    </section>
+
+    <p class="footer">💡 本頁內容依據「教學訓練計畫主持人工作坊.docx」整理呈現。</p>
+  </main>
+</body>
+</html>
