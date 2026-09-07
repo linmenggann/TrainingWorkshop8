@@ -49,8 +49,9 @@ function setupSheet() {
   }
 }
 
-/** GET 僅顯示服務識別，不讀取或揭露報名資料。 */
-function doGet() {
+/** GET 預設為服務識別；action=dashboard 僅回傳不含個資的彙總數字。 */
+function doGet(e) {
+  if (e && e.parameter && e.parameter.action === 'dashboard') return dashboardResponse_();
   return json_({ ok: true, service: 'workshop-registration', version: 1 });
 }
 
@@ -149,4 +150,76 @@ function publicError_(code, message) {
 
 function json_(data) {
   return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
+}
+
+
+/** 儀表板唯讀端點；沿用報名寫入鎖以取得一致的統計快照。 */
+function dashboardResponse_() {
+  const lock = LockService.getScriptLock();
+  let locked = false;
+  try {
+    locked = lock.tryLock(15000);
+    if (!locked) throw publicError_('BUSY', '資料更新中，請稍後重試。');
+    const sheet = SpreadsheetApp.openById(CONFIG.spreadsheetId).getSheetByName(CONFIG.sheetName);
+    if (!sheet) throw publicError_('SETUP_REQUIRED', '找不到報名資料分頁。');
+    assertHeaders_(sheet);
+    const count = sheet.getLastRow() - 1;
+    const rows = count > 0 ? sheet.getRange(2, 1, count, HEADERS.length).getDisplayValues() : [];
+    return json_({ok: true, service: 'workshop-dashboard', schemaVersion: 1,
+      summary: buildDashboardSummary_(rows, new Date().toISOString())});
+  } catch (error) {
+    return json_({ok: false, code: error.publicCode || 'SERVER_ERROR',
+      message: error.publicMessage || '暫時無法讀取報名統計，請稍後重試。'});
+  } finally {
+    if (locked) lock.releaseLock();
+  }
+}
+
+/** 純統計函式：不回傳姓名、機構名稱、職稱、Email、電話或報名編號。 */
+function buildDashboardSummary_(rows, generatedAt) {
+  const attendance = {'實體': 0, '線上': 0, '未分類': 0};
+  const directors = {'是': 0, '否': 0, '未分類': 0};
+  const professions = PROFESSIONS.concat(['未分類']).map(function (label) { return {label: label, count: 0}; });
+  const institutions = new Set();
+  const ids = new Set();
+  const days = Object.create(null);
+  const quality = {skippedRows: 0, duplicateRows: 0, invalidDates: 0};
+  let total = 0;
+  let latest = '';
+  rows.forEach(function (row) {
+    const values = row.map(function (value) { return String(value == null ? '' : value).trim(); });
+    if (!values.some(Boolean)) return;
+    if (!values[1]) { quality.skippedRows++; return; }
+    const id = values[9] ? values[9].toLowerCase() : '';
+    if (id && ids.has(id)) { quality.duplicateRows++; return; }
+    if (id) ids.add(id);
+    total++;
+    if (values[2]) institutions.add(values[2]);
+    attendance[Object.prototype.hasOwnProperty.call(attendance, values[6]) ? values[6] : '未分類']++;
+    directors[Object.prototype.hasOwnProperty.call(directors, values[5]) ? values[5] : '未分類']++;
+    const profession = professions.find(function (item) { return item.label === values[4]; });
+    (profession || professions[professions.length - 1]).count++;
+    const stamp = normalizeDashboardDate_(values[0]);
+    if (stamp) {
+      const day = stamp.slice(0, 10).replace(/\//g, '-');
+      days[day] = (days[day] || 0) + 1;
+      if (stamp > latest) latest = stamp;
+    } else quality.invalidDates++;
+  });
+  return {generatedAt: generatedAt, total: total, institutionCount: institutions.size,
+    attendanceCounts: attendance, directorCounts: directors, professionCounts: professions,
+    dailyCounts: Object.keys(days).sort().map(function (date) { return {date: date, count: days[date]}; }),
+    lastRegistrationAt: latest || null, quality: quality};
+}
+
+function normalizeDashboardDate_(value) {
+  const match = /^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/.exec(value || '');
+  if (!match) return null;
+  const parts = match.slice(1).map(function (n) { return Number(n || 0); });
+  const date = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2], parts[3], parts[4], parts[5]));
+  if (date.getUTCFullYear() !== parts[0] || date.getUTCMonth() !== parts[1] - 1 ||
+      date.getUTCDate() !== parts[2] || date.getUTCHours() !== parts[3] ||
+      date.getUTCMinutes() !== parts[4] || date.getUTCSeconds() !== parts[5]) return null;
+  function pad(n) { return String(n).padStart(2, '0'); }
+  return parts[0] + '/' + pad(parts[1]) + '/' + pad(parts[2]) + ' ' + pad(parts[3]) + ':' + pad(parts[4]) + ':' + pad(parts[5]);
 }

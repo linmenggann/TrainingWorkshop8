@@ -13,6 +13,7 @@ function service(options = {}) {
     setFrozenRows(){}, setColumnWidths(){}, setColumnWidth(){},
     getRange(row, col, height, width) {
       const range = {
+        getDisplayValues: () => Array.from({length:height}, (_, i) => Array.from({length:width}, (_, j) => String(rows[row-1+i]?.[col-1+j] ?? ''))),
         getValues: () => Array.from({length:height}, (_, i) => Array.from({length:width}, (_, j) => rows[row-1+i]?.[col-1+j] ?? '')),
         setValues(values){ writes++; values.forEach((valuesRow,i)=>{ rows[row-1+i] ||= []; valuesRow.forEach((v,j)=>rows[row-1+i][col-1+j]=v); }); return range; },
         createTextFinder(id){ const finder = {matchEntireCell:()=>finder,matchCase:()=>finder,useRegularExpression:()=>finder,findNext:()=>rows.slice(row-1,row-1+height).find(r=>r[col-1]===id) || null}; return finder; }
@@ -67,4 +68,44 @@ test('setup is repeatable and preserves existing rows; mismatching headers stay 
 test('public responses never include submitted personal data or internal errors',()=>{
   const s=service({failFirstFlush:true});const response=s.post();assert.equal(JSON.stringify(response).includes('private service details'),false);assert.equal(JSON.stringify(response).includes(valid.email),false);
   const health=JSON.parse(s.context.doGet());assert.deepEqual(health,{ok:true,service:'workshop-registration',version:1});
+});
+
+
+test('dashboard summary matches the checked-in current snapshot without retaining personal fields',()=>{
+  const snapshot=JSON.parse(fs.readFileSync('dashboard.html','utf8').match(/<script id="dashboard-data" type="application\/json">([\s\S]*?)<\/script>/)[1]);
+  const rows=[
+    ['2026/09/07 22:22:53','Example A','Org A','Role A','呼吸治療','是','實體','a@example.test','001','id-a'],
+    ['2026/09/07 22:24:19','Example B','Org B','Role B','語言治療','否','線上','b@example.test','002','id-b'],
+    ['2026/09/07 22:25:52','Example C','Org C','Role C','職能治療','是','實體','c@example.test','003','id-c'],
+    ['2026/09/07 22:28:20','Example D','Org D','Role D','聽力','否','線上','d@example.test','004','id-d']
+  ];
+  const summary=service().context.buildDashboardSummary_(rows,snapshot.summary.generatedAt);
+  assert.deepEqual(JSON.parse(JSON.stringify(summary)),snapshot.summary);
+  const serialized=JSON.stringify(summary);
+  for(const value of ['Example','Org','Role','@example.test','id-a','001'])assert.equal(serialized.includes(value),false);
+});
+test('dashboard GET reads counts, releases lock, never writes and preserves health endpoint',()=>{
+  const s=service();s.post();const writes=s.writes;
+  const result=JSON.parse(s.context.doGet({parameter:{action:'dashboard'}}));
+  assert.equal(result.ok,true);assert.equal(result.summary.total,1);assert.equal(s.writes,writes);assert.equal(s.releases,2);
+  assert.equal(JSON.parse(s.context.doGet()).service,'workshop-registration');
+});
+test('dashboard handles blank rows, missing names, duplicate IDs, unknown choices and invalid dates',()=>{
+  const base=['2026/09/07 11:00:00','Person',' Org ','role','護理','是','實體','test@example.test','001','ID-A'];
+  const rows=[[],base,[...base],['','','Org'],['bad-date','Second','Org','role','unexpected','?','?','','','']];
+  const result=service().context.buildDashboardSummary_(rows,'2026-09-07T12:00:00Z');
+  assert.equal(result.total,2);assert.equal(result.institutionCount,1);
+  assert.equal(result.quality.skippedRows,1);assert.equal(result.quality.duplicateRows,1);assert.equal(result.quality.invalidDates,1);
+  assert.equal(result.attendanceCounts['未分類'],1);assert.equal(result.directorCounts['未分類'],1);assert.equal(result.professionCounts.at(-1).count,1);
+});
+test('dashboard empty data has no last date; dates reject overflow and normalize nonpadded dates',()=>{
+  const s=service();const summary=s.context.buildDashboardSummary_([], '2026-09-07T12:00:00Z');assert.equal(summary.total,0);assert.equal(summary.lastRegistrationAt,null);
+  assert.equal(s.context.normalizeDashboardDate_('2026/2/29 12:00:00'),null);
+  assert.equal(s.context.normalizeDashboardDate_('2026/09/07 25:00:00'),null);
+  assert.equal(s.context.normalizeDashboardDate_('2024/2/29 9:01:02'),'2024/02/29 09:01:02');
+});
+test('dashboard endpoint errors expose no data and leave existing rows intact',()=>{
+  for(const [options,code] of [[{busy:true},'BUSY'],[{missing:true},'SETUP_REQUIRED'],[{rows:[['wrong header']]},'HEADER_MISMATCH']]){
+    const s=service(options);const result=JSON.parse(s.context.doGet({parameter:{action:'dashboard'}}));assert.equal(result.ok,false);assert.equal(result.code,code);assert.equal(result.summary,undefined);assert.equal(s.writes,0);
+  }
 });
