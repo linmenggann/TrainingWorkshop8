@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#29124e">
-  <meta name="description" content="教學訓練計畫主持人工作坊｜2026 年 1 月 25 日 9:00–16:00，奇美醫院第五醫療大樓 6 樓 563 會議室。活動資訊與報名資料預覽。">
+  <meta name="description" content="教學訓練計畫主持人工作坊｜2026 年 1 月 25 日 9:00–16:00，奇美醫院第五醫療大樓 6 樓 563 會議室。活動資訊與線上報名。">
   <title>教學訓練計畫主持人工作坊｜奇美醫院教學部</title>
   <style>
     :root{color-scheme:dark;--ink:#fff;--muted:#cbbddf;--lime:#d5fc91;--pink:#e4afff;--line:rgba(233,217,255,.19);--field:#281740;--radius:24px}
-    *{box-sizing:border-box}
+    *{box-sizing:border-box}[hidden]{display:none!important}
     html{scroll-behavior:smooth;scroll-padding-top:100px}
     body{margin:0;color:var(--ink);font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;font-size:16px;line-height:1.65;background:#211037;background-image:radial-gradient(ellipse at 4% 25%,#65348c88,transparent 48%),radial-gradient(ellipse at 100% 64%,#762e8c66,transparent 50%),linear-gradient(125deg,#27103e,#3e1b66 52%,#211038);min-height:100vh}
     body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background-image:radial-gradient(#e6c9ff 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(#000,transparent 80%);z-index:-1}
@@ -52,6 +52,7 @@
     .contact{margin-top:43px;padding:23px 26px;border:1px solid var(--line);border-radius:16px;background:#ffffff05;display:flex;justify-content:space-between;align-items:center;gap:22px}.contact-title{display:flex;align-items:center;gap:13px}.contact-title .emoji{font-size:26px}.contact-title small{display:block;color:var(--muted);font-size:12px;letter-spacing:.1em}.contact-title strong{font-size:16px;font-weight:600}.contact-detail{display:flex;align-items:center;gap:26px;font-size:14px;color:#e2d6ed}.contact-detail a{color:var(--lime)}.contact-detail a:hover{text-decoration:underline}.contact-detail span{white-space:nowrap}
     footer{border-top:1px solid var(--line);padding:20px 0 24px;color:#bdabcf;font-size:12px}.footer-inner{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.footer-mark{letter-spacing:.13em}
     dialog{width:min(540px,calc(100% - 32px));max-height:85vh;overflow:auto;background:#332047;color:white;border:1px solid #ab83c7;border-radius:22px;padding:28px;box-shadow:0 30px 100px #0007}dialog::backdrop{background:#12091ecc;backdrop-filter:blur(6px)}dialog h2{margin:0 0 6px;font-size:24px}.dialog-note{color:var(--muted);font-size:14px;margin:0 0 18px}.summary-list{margin:20px 0}.summary-list div{padding:10px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:130px 1fr;gap:12px}.summary-list dt{color:var(--muted);font-size:14px}.summary-list dd{margin:0;overflow-wrap:anywhere;font-size:15px}.notice{background:#d5fc9110;border:1px solid #d5fc9140;border-radius:10px;color:#e5f6ce;padding:12px;font-size:14px;margin-bottom:20px}
+    .secondary{width:100%;padding:11px;margin-top:10px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--ink)}.primary:disabled{opacity:.55;transform:none}.form-note:empty{display:none}
     @media(min-width:1500px){main{padding-top:65px}.layout{gap:105px}}
     @media(max-width:1050px){.wrap{width:calc(100% - 48px)}.layout{gap:35px;grid-template-columns:1fr 1fr}h1{font-size:43px}.spark{right:0;font-size:40px;top:108px}.form-card{padding:25px 23px}.info-value{font-size:20px}.contact-detail{gap:12px;flex-wrap:wrap;justify-content:flex-end}}
     @media(max-width:800px){.layout{grid-template-columns:1fr;gap:34px;max-width:580px;margin:24px auto 0}.eyebrow{max-width:580px;margin:auto}.hero{padding-top:0}h1{font-size:52px}.spark{right:25px;top:100px;font-size:60px}.contact{max-width:580px;margin:30px auto 0;align-items:flex-start;flex-direction:column}.contact-detail{justify-content:flex-start}.welcome{margin-top:22px}.nav{min-height:80px}nav{gap:16px}.nav-pill{display:none}main{padding-top:32px}}
@@ -92,7 +93,7 @@
       </section>
       <section class="form-card" id="registration" aria-labelledby="form-title">
         <div class="form-top"><h2 id="form-title">填寫參與資料</h2><span class="emoji" aria-hidden="true">📝</span></div>
-        <p class="form-subtitle">留下您的資訊，預覽本次工作坊參與資料。<br><span class="required">*</span> 為必填欄位</p>
+        <p class="form-subtitle">填寫資料並確認後，即可送出工作坊報名。<br><span class="required">*</span> 為必填欄位</p>
         <form id="workshop-form">
           <div class="form-grid">
             <div class="field"><label for="name">姓名<span class="required" aria-hidden="true">*</span></label><input id="name" name="name" autocomplete="name" placeholder="請輸入姓名" required maxlength="80"></div>
@@ -104,11 +105,12 @@
             <div class="field full"><label for="email">Email<span class="required" aria-hidden="true">*</span></label><input type="email" id="email" name="email" autocomplete="email" placeholder="name@example.com" required maxlength="254"></div>
             <div class="field full"><label for="phone">聯繫電話<span class="required" aria-hidden="true">*</span></label><input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="手機或市話（可含分機）" required maxlength="40"></div>
           </div>
-          <p class="form-note" id="preview-note"><span aria-hidden="true">💬</span><span>此頁提供資料填寫與預覽，尚未連接報名收件服務。正式報名請洽下方主辦單位。</span></p>
-          <button class="primary" type="submit" aria-describedby="preview-note" disabled>預覽參與資料 <span class="arrow" aria-hidden="true">↗</span></button>
-          <p class="privacy">🔒 資料僅於此頁預覽，不會傳送或儲存。</p>
+          <p class="form-note" id="preview-note"><span aria-hidden="true">💬</span><span>送出前請確認資料。報名資料將交由奇美醫院教學部，用於本次工作坊報名及聯繫。</span></p>
+          <button class="primary" type="submit" aria-describedby="preview-note" disabled>確認參與資料 <span class="arrow" aria-hidden="true">↗</span></button>
+          <p id="form-status" class="form-note" role="status" aria-live="polite"></p>
+          <p class="privacy">🔒 按下「確認送出報名」後，資料才會傳送至主辦單位的 Google Sheets。</p>
         </form>
-        <noscript><p class="notice">請啟用 JavaScript 以使用資料預覽；活動資訊仍可正常閱讀。</p></noscript>
+        <noscript><p class="notice">請啟用 JavaScript 以使用報名功能；活動資訊仍可正常閱讀。</p></noscript>
       </section>
     </div>
     <section class="contact" id="contact" aria-label="主辦單位與聯絡資訊">
@@ -118,17 +120,39 @@
   </main>
   <footer><div class="wrap footer-inner"><span>教學訓練計畫主持人工作坊</span><span class="footer-mark">LEARN TOGETHER. GROW TOGETHER. ✨</span></div></footer>
   <dialog id="preview" aria-labelledby="preview-title" aria-describedby="preview-description">
-    <h2 id="preview-title">參與資料預覽 ✨</h2>
+    <h2 id="preview-title">確認參與資料 ✨</h2>
     <p class="dialog-note" id="preview-description">請確認以下內容。如需調整，關閉預覽後即可修改。</p>
     <dl class="summary-list" id="summary"></dl>
-    <p class="notice">這是資料預覽，尚未完成報名，資料也未送出。正式報名請聯繫奇美醫院教學部：06-281-2811 分機 57112233（陳大頭）。</p>
-    <form method="dialog"><button class="primary" autofocus>返回修改</button></form>
+    <p class="notice" id="submission-status" role="status" aria-live="polite">確認資料無誤後，請按下方按鈕送出報名。</p>
+    <button class="primary" id="send-registration" type="button" disabled>確認送出報名 🚀</button>
+    <form method="dialog"><button class="secondary" id="edit-registration" autofocus>返回修改</button></form>
   </dialog>
   <script>
     'use strict';
+    // 部署 Code.gs 後，將 Google Apps Script /exec 網址貼入此處。
+    // Google Sheets 網址不是收件網址；不需要 API key，也不要放 OAuth 憑證。
+    const APPS_SCRIPT_URL = '';
+    const endpointReady = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(APPS_SCRIPT_URL);
     const form = document.getElementById('workshop-form');
     const preview = document.getElementById('preview');
+    const sendButton = document.getElementById('send-registration');
+    const editButton = document.getElementById('edit-registration');
+    const status = document.getElementById('submission-status');
+    const formStatus = document.getElementById('form-status');
     const labels = [['name','姓名'],['organization','機構名'],['title','職稱'],['profession','負責的職類'],['director','目前擔任主持人'],['attendance','參與方式'],['email','Email'],['phone','聯繫電話']];
+    let pending = null;
+    let sending = false;
+    let completed = false;
+
+    function createRequestId() {
+      if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+      const bytes = crypto.getRandomValues(new Uint8Array(16));
+      bytes[6] = (bytes[6] & 15) | 64;
+      bytes[8] = (bytes[8] & 63) | 128;
+      const hex = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+      return [hex.slice(0,8),hex.slice(8,12),hex.slice(12,16),hex.slice(16,20),hex.slice(20)].join('-');
+    }
+
     form.querySelectorAll('input:not([type="radio"])').forEach(input => {
       input.addEventListener('input', () => input.setCustomValidity(''));
       input.addEventListener('change', () => {
@@ -136,14 +160,23 @@
         input.setCustomValidity(input.value ? '' : '請填寫此欄位，不能只輸入空白。');
       });
     });
+    if (!endpointReady) formStatus.textContent = '報名服務尚未啟用，目前可確認填寫資料；如需報名，請洽下方主辦單位。';
     form.addEventListener('submit', event => {
       event.preventDefault();
+      if (sending) return;
       form.querySelectorAll('input:not([type="radio"])').forEach(input => {
         input.value = input.value.trim();
         input.setCustomValidity(input.value ? '' : '請填寫此欄位，不能只輸入空白。');
       });
       if (!form.reportValidity()) return;
       const data = new FormData(form);
+      const payload = Object.fromEntries(labels.map(([key]) => [key, String(data.get(key)).trim()]));
+      const fingerprint = JSON.stringify(payload);
+      // 連線失敗後，相同資料沿用原編號，讓伺服器安全地去除重複請求。
+      if (!pending || pending.fingerprint !== fingerprint) {
+        pending = { payload, fingerprint, requestId: createRequestId() };
+      }
+      completed = false;
       const summary = document.getElementById('summary');
       summary.replaceChildren();
       labels.forEach(([key, label]) => {
@@ -151,15 +184,78 @@
         const term = document.createElement('dt');
         const value = document.createElement('dd');
         term.textContent = label;
-        value.textContent = data.get(key);
+        value.textContent = payload[key];
         row.append(term, value);
         summary.append(row);
       });
+      document.getElementById('preview-title').textContent = '確認參與資料 ✨';
+      document.getElementById('preview-description').textContent = '請確認以下內容。如需調整，返回修改後即可編輯。';
+      status.textContent = endpointReady ? '確認資料無誤後，請按下方按鈕送出報名。' : '報名服務尚未啟用，目前無法送出。請聯繫主辦單位。';
+      sendButton.disabled = !endpointReady;
+      sendButton.hidden = false;
+      sendButton.textContent = '確認送出報名 🚀';
+      editButton.textContent = '返回修改';
       preview.showModal();
     });
+
+    sendButton.addEventListener('click', async () => {
+      if (!endpointReady || !pending || sending || completed) return;
+      sending = true;
+      sendButton.disabled = true;
+      editButton.disabled = true;
+      preview.setAttribute('aria-busy', 'true');
+      sendButton.textContent = '正在送出…';
+      status.textContent = '正在送出資料，請勿關閉此頁。';
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+      try {
+        // URLSearchParams 使用標準表單 Content-Type，避免 JSON 預檢要求。
+        // 必須讀到 JSON 成功回覆；不可改成 no-cors 後直接宣告成功。
+        const response = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          body: new URLSearchParams({ action: 'register', requestId: pending.requestId, ...pending.payload }),
+          mode: 'cors', credentials: 'omit', redirect: 'follow', signal: controller.signal
+        });
+        if (!response.ok) throw new Error('HTTP_ERROR');
+        const result = await response.json();
+        if (result.ok === false) {
+          const messages = {
+            VALIDATION_ERROR: '資料格式不符，請返回修改並確認所有欄位。',
+            INVALID_REQUEST: '無法處理此筆報名，請聯繫主辦單位。',
+            SETUP_REQUIRED: '報名服務尚未完成設定，請聯繫主辦單位。',
+            HEADER_MISMATCH: '報名表設定有誤，請聯繫主辦單位。',
+            BUSY: '目前報名人數較多，請稍後以相同資料重試。',
+            SERVER_ERROR: '尚未確認報名結果，請以相同資料重試，或提供下方編號向主辦單位查詢。'
+          };
+          status.textContent = (messages[result.code] || messages.SERVER_ERROR) + ' 報名編號：' + pending.requestId;
+          return;
+        }
+        if (result.ok !== true || result.requestId !== pending.requestId) throw new Error('INVALID_RESPONSE');
+        completed = true;
+        document.getElementById('preview-title').textContent = '報名資料已收件 🎉';
+        document.getElementById('preview-description').textContent = '您的資料已寫入主辦單位的報名試算表。';
+        status.textContent = '報名資料已成功收件！報名編號：' + result.requestId;
+        formStatus.textContent = '報名資料已收件，請保留報名編號：' + result.requestId;
+        sendButton.hidden = true;
+        editButton.textContent = '完成';
+        form.reset();
+        pending = null;
+      } catch (error) {
+        // 網路中斷不代表未寫入：保留資料及同一編號供重試，絕不假報成功。
+        status.textContent = '尚未收到收件確認，資料可能已送達。請勿重新整理或修改資料；可按「重試送出」沿用同一編號，或聯繫主辦單位查詢。報名編號：' + pending.requestId;
+      } finally {
+        clearTimeout(timeout);
+        sending = false;
+        sendButton.disabled = completed || !endpointReady;
+        editButton.disabled = false;
+        preview.removeAttribute('aria-busy');
+        if (!completed) sendButton.textContent = '重試送出';
+      }
+    });
     form.querySelector('button[type=submit]').disabled = false;
+    preview.addEventListener('cancel', event => { if (sending) event.preventDefault(); });
     preview.addEventListener('click', event => {
-      if (event.target !== preview) return;
+      if (sending || event.target !== preview) return;
       const bounds = preview.getBoundingClientRect();
       if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) preview.close();
     });
