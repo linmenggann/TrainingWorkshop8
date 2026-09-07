@@ -6,7 +6,8 @@
 const CONFIG = Object.freeze({
   spreadsheetId: '1uiACPGdC3mS-bR1mxh_TukK31rS7Z7fcrtqiuKSBkWI',
   sheetName: '工作坊報名資料',
-  timeZone: 'Asia/Taipei'
+  timeZone: 'Asia/Taipei',
+  capacity: 4
 });
 const HEADERS = Object.freeze([
   '報名時間', '姓名', '機構名', '職稱', '負責的職類',
@@ -70,12 +71,17 @@ function doPost(e) {
 
     // 同一頁面重試沿用 UUID；檢查與寫入均在同一把鎖內，避免同時送出重複列。
     const lastRow = sheet.getLastRow();
+    const registeredRows = lastRow > 1 ? sheet.getRange(2, 1, lastRow - 1, HEADERS.length).getDisplayValues() : [];
+    const registered = buildDashboardSummary_(registeredRows, new Date().toISOString()).total;
+    const availability = availabilityForCount_(registered);
     if (lastRow > 1) {
       const existing = sheet.getRange(2, 10, lastRow - 1, 1)
         .createTextFinder(data.requestId).matchEntireCell(true).matchCase(true)
         .useRegularExpression(false).findNext();
-      if (existing) return json_({ ok: true, duplicate: true, requestId: data.requestId });
+      if (existing) return json_({ ok: true, duplicate: true, requestId: data.requestId, availability: availability });
     }
+    // 必須在重試去重之後、寫入之前檢查，且持續持有同一把 ScriptLock。
+    if (availability.full) return json_({ok: false, code: 'FULL', message: '額滿，本活動限額 4 名，已停止受理報名。', availability: availability});
     const timestamp = Utilities.formatDate(new Date(), CONFIG.timeZone, 'yyyy/MM/dd HH:mm:ss');
     const row = [timestamp].concat(FIELDS.map(function (field) {
       return safeCell_(data[field[0]]);
@@ -85,7 +91,7 @@ function doPost(e) {
     // 文字格式保留電話 0 與分機；safeCell_ 另防止使用者輸入被當成公式。
     sheet.getRange(nextRow, 1, 1, HEADERS.length).setNumberFormat('@').setValues([row]);
     SpreadsheetApp.flush();
-    return json_({ ok: true, duplicate: false, requestId: data.requestId });
+    return json_({ ok: true, duplicate: false, requestId: data.requestId, availability: availabilityForCount_(registered + 1) });
   } catch (error) {
     // 不回傳例外堆疊、試算表資料、憑證或使用者輸入。
     return json_({
@@ -165,8 +171,9 @@ function dashboardResponse_() {
     assertHeaders_(sheet);
     const count = sheet.getLastRow() - 1;
     const rows = count > 0 ? sheet.getRange(2, 1, count, HEADERS.length).getDisplayValues() : [];
+    const summary = buildDashboardSummary_(rows, new Date().toISOString());
     return json_({ok: true, service: 'workshop-dashboard', schemaVersion: 1,
-      summary: buildDashboardSummary_(rows, new Date().toISOString())});
+      summary: summary, availability: availabilityForCount_(summary.total)});
   } catch (error) {
     return json_({ok: false, code: error.publicCode || 'SERVER_ERROR',
       message: error.publicMessage || '暫時無法讀取報名統計，請稍後重試。'});
@@ -222,4 +229,12 @@ function normalizeDashboardDate_(value) {
       date.getUTCMinutes() !== parts[4] || date.getUTCSeconds() !== parts[5]) return null;
   function pad(n) { return String(n).padStart(2, '0'); }
   return parts[0] + '/' + pad(parts[1]) + '/' + pad(parts[2]) + ' ' + pad(parts[3]) + ':' + pad(parts[4]) + ':' + pad(parts[5]);
+}
+
+
+/** 名額狀態由伺服器統一決定；前端不提供也不能覆寫名額上限。 */
+function availabilityForCount_(registered) {
+  return {capacity: CONFIG.capacity, registered: registered,
+    remaining: Math.max(0, CONFIG.capacity - registered),
+    full: registered >= CONFIG.capacity, capacityEnforced: true};
 }

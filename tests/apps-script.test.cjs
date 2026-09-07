@@ -7,7 +7,7 @@ const headers = fs.readFileSync('apps-script/headers.tsv', 'utf8').trim().split(
 const valid = {action:'register',requestId:'12345678-1234-4123-8123-123456789abc',name:'測試使用者',organization:'測試機構',title:'測試職稱',profession:'護理',director:'是',attendance:'實體',email:'test@example.com',phone:'06-0123456 分機 123'};
 function service(options = {}) {
   const rows = options.rows || [headers.slice()];
-  let releases = 0, writes = 0, flushes = 0;
+  let releases = 0, writes = 0, flushes = 0, holding = false;
   const sheet = {
     getLastRow: () => rows.length, getMaxRows: () => 1000,
     setFrozenRows(){}, setColumnWidths(){}, setColumnWidth(){},
@@ -15,7 +15,7 @@ function service(options = {}) {
       const range = {
         getDisplayValues: () => Array.from({length:height}, (_, i) => Array.from({length:width}, (_, j) => String(rows[row-1+i]?.[col-1+j] ?? ''))),
         getValues: () => Array.from({length:height}, (_, i) => Array.from({length:width}, (_, j) => rows[row-1+i]?.[col-1+j] ?? '')),
-        setValues(values){ writes++; values.forEach((valuesRow,i)=>{ rows[row-1+i] ||= []; valuesRow.forEach((v,j)=>rows[row-1+i][col-1+j]=v); }); return range; },
+        setValues(values){if(options.onWrite)options.onWrite(); writes++; values.forEach((valuesRow,i)=>{ rows[row-1+i] ||= []; valuesRow.forEach((v,j)=>rows[row-1+i][col-1+j]=v); }); return range; },
         createTextFinder(id){ const finder = {matchEntireCell:()=>finder,matchCase:()=>finder,useRegularExpression:()=>finder,findNext:()=>rows.slice(row-1,row-1+height).find(r=>r[col-1]===id) || null}; return finder; }
       };
       for (const name of ['setNumberFormat','setBackground','setFontColor','setFontWeight','setWrap']) range[name] = () => range;
@@ -23,7 +23,7 @@ function service(options = {}) {
     }
   };
   const context = vm.createContext({
-    LockService:{getScriptLock:()=>({tryLock:()=>!options.busy,waitLock(){},releaseLock(){releases++;}})},
+    LockService:{getScriptLock:()=>({tryLock:()=>{if(options.busy||holding)return false;holding=true;return true;},waitLock(){holding=true;},releaseLock(){holding=false;releases++;}})},
     SpreadsheetApp:{
       openById(id){assert.equal(id,'1uiACPGdC3mS-bR1mxh_TukK31rS7Z7fcrtqiuKSBkWI'); return {getSheetByName(name){assert.equal(name,'工作坊報名資料');return options.missing ? null : sheet;},insertSheet:()=>sheet};},
       flush(){flushes++; if(options.failFirstFlush && flushes===1) throw Error('private service details');}
@@ -108,4 +108,24 @@ test('dashboard endpoint errors expose no data and leave existing rows intact',(
   for(const [options,code] of [[{busy:true},'BUSY'],[{missing:true},'SETUP_REQUIRED'],[{rows:[['wrong header']]},'HEADER_MISMATCH']]){
     const s=service(options);const result=JSON.parse(s.context.doGet({parameter:{action:'dashboard'}}));assert.equal(result.ok,false);assert.equal(result.code,code);assert.equal(result.summary,undefined);assert.equal(s.writes,0);
   }
+});
+
+
+function capacityRows(n){return [headers.slice(),...Array.from({length:n},(_,i)=>['2026/09/07 12:00:00','Example '+i,'Org','Role','護理','是','實體','test@example.test','001','00000000-0000-4000-8000-'+String(i).padStart(12,'0')])];}
+test('capacity permits fourth registration, rejects fifth, and allows receipt retry at full',()=>{
+  const s=service({rows:capacityRows(3)});const fourth=s.post();assert.equal(fourth.ok,true);assert.equal(fourth.availability.full,true);assert.equal(fourth.availability.remaining,0);
+  const fifth=s.post({...valid,requestId:'12345678-1234-4123-8123-123456789abd'});assert.equal(fifth.code,'FULL');assert.equal(fifth.availability.registered,4);assert.equal(s.rows.length,5);assert.equal(s.writes,1);
+  const retry=s.post();assert.equal(retry.ok,true);assert.equal(retry.duplicate,true);assert.equal(s.writes,1);
+});
+test('direct POST cannot override capacity; over-limit existing data never accepts new rows',()=>{
+  for(const n of [4,5]){const s=service({rows:capacityRows(n)});const result=s.post({...valid,capacity:'999',remaining:'999'});assert.equal(result.code,'FULL');assert.equal(result.availability.remaining,0);assert.equal(s.writes,0);}
+});
+test('shared lock prevents overlapping last-slot requests and retry sees full',()=>{
+  let competing;let firstWrite=true;let s;
+  const other={...valid,requestId:'12345678-1234-4123-8123-123456789abd'};
+  s=service({rows:capacityRows(3),onWrite(){if(firstWrite){firstWrite=false;competing=s.post(other);}}});
+  assert.equal(s.post().ok,true);assert.equal(competing.code,'BUSY');assert.equal(s.post(other).code,'FULL');assert.equal(s.rows.length,5);
+});
+test('dashboard availability uses same deduplicated total as registration gate',()=>{
+  const rows=capacityRows(4);rows.push([...rows[1]],[]);const s=service({rows});const result=JSON.parse(s.context.doGet({parameter:{action:'dashboard'}}));assert.equal(result.summary.total,4);assert.equal(result.availability.capacity,4);assert.equal(result.availability.registered,4);assert.equal(result.availability.full,true);assert.equal(result.availability.capacityEnforced,true);
 });

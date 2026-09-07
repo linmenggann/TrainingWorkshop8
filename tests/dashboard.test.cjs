@@ -22,7 +22,7 @@ function page(fetcher){
 }
 test('current snapshot renders four registrations, proportions, professions and seven daily bars',async()=>{
   const p=page();await p.ctx.startup;
-  assert.equal(p.elements.total.textContent,'4');assert.equal(p.elements.onsite.textContent,'2');assert.equal(p.elements.online.textContent,'2');assert.equal(p.elements.institutions.textContent,'4');
+  assert.match(p.elements['capacity-status'].textContent,/額滿/);assert.equal(p.elements.total.textContent,'4');assert.equal(p.elements.onsite.textContent,'2');assert.equal(p.elements.online.textContent,'2');assert.equal(p.elements.institutions.textContent,'4');
   assert.equal(p.elements['director-percent'].textContent,'50%');assert.equal(p.elements.professions.children.length,12);assert.equal(p.elements.trend.children.length,7);assert.equal(p.elements.trend.children.at(-1).children[0].textContent,'4');
 });
 test('old deployment health response keeps timestamped snapshot and never reports fresh data',async()=>{
@@ -34,7 +34,7 @@ test('valid fresh summary replaces snapshot; empty sheets render zero without Na
   for(const counts of [s.attendanceCounts,s.directorCounts])for(const key of Object.keys(counts))counts[key]=0;
   s.professionCounts.forEach(p=>p.count=0);s.dailyCounts=[];s.lastRegistrationAt=null;
   const p=page(async()=>({ok:true,json:async()=>result}));await p.ctx.startup;
-  assert.equal(p.elements.total.textContent,'0');assert.equal(p.elements['source-badge'].textContent,'已更新');assert.equal(p.elements['director-percent'].textContent,'0%');assert.equal(p.elements['empty-state'].hidden,false);assert.equal(p.elements['attendance-chart'].style.background,'#ffffff18');
+  assert.match(p.elements['capacity-status'].textContent,/剩餘 4 名/);assert.equal(p.elements.total.textContent,'0');assert.equal(p.elements['source-badge'].textContent,'已更新');assert.equal(p.elements['director-percent'].textContent,'0%');assert.equal(p.elements['empty-state'].hidden,false);assert.equal(p.elements['attendance-chart'].style.background,'#ffffff18');
 });
 test('network, invalid JSON and invalid totals retain existing data',async()=>{
   const bad=JSON.parse(JSON.stringify(snapshot));bad.summary.total=99;
