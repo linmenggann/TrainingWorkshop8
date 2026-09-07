@@ -5,7 +5,8 @@
 ## 檔案
 
 - **dashboard.html**：報名現況儀表板，呈現累計、參與方式、機構數、職類分布、主持人身分與最近 7 日趨勢。
-- **index.html**：紫色漸層、emoji、響應式單檔網頁，內含 HTML／CSS／JavaScript。
+- **index.html**：特展照片搭配紫色漸層、emoji 的響應式網頁，內含 HTML／CSS／JavaScript。
+- **布雷西亞廳特展.jpg**：報名頁整頁背景照片，需與 index.html 放在同一目錄；疊加紫色遮罩維持文字可讀性。
 - **apps-script/Code.gs**：Google Apps Script 收件程式，已設定指定試算表與「工作坊報名資料」分頁。
 - **apps-script/headers.tsv**：可整行貼到 A1 的 10 欄表頭。
 - **[apps-script/SETUP.md](apps-script/SETUP.md)**：初始化、授權、部署、網頁設定及收件驗證步驟。
