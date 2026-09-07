@@ -1,6 +1,6 @@
 # Google Sheets 報名串接設定
 
-本專案已完成網頁送出流程與 Apps Script 收件程式。尚需由試算表擁有者執行初始化、授權並部署，取得收件網址後填入網頁，才能實際收件。
+本專案已完成網頁送出流程與 Apps Script 收件程式，index.html 已填入提供的 /exec 部署網址。以下步驟可用於核對設定或重新部署；請依第 5 節驗證實際收件。
 
 ## 1. 開啟指定試算表
 
@@ -52,7 +52,7 @@ https://script.google.com/macros/s/部署識別碼/exec
 
 ## 4. 設定網頁收件網址
 
-在專案根目錄 **index.html** 搜尋：
+目前網頁已設定部署網址；更換部署時，在專案根目錄 **index.html** 搜尋 APPS_SCRIPT_URL 並更新其值。設定格式如下：
 
 ```js
 const APPS_SCRIPT_URL = '';

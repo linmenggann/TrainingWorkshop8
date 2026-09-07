@@ -12,7 +12,7 @@
 
 ## 啟用收件
 
-先依 SETUP.md 執行 setupSheet 並部署 Code.gs，再將部署後的 /exec 網址填入 index.html 的 **APPS_SCRIPT_URL**。目前此值留白，網頁會清楚顯示服務未啟用並停用送出，仍可預覽資料。
+index.html 的 **APPS_SCRIPT_URL** 已填入提供的 Apps Script /exec 部署網址，網頁可確認資料並送出。主辦單位仍須依 SETUP.md 核對表頭與部署權限，並驗證實際收件。
 
 網頁可直接開啟查看；正式報名請使用 HTTPS 網站並完成實際收件驗證。Google Sheets 網址不能直接當成送出網址。此專案未自動部署 Apps Script，也未寫入線上試算表。
 

@@ -30,7 +30,7 @@ function page({endpoint=ENDPOINT,fetcher}={}){
     setTimeout:fn=>{timer=fn;return 1;},clearTimeout(){},
     fetch:async(url,options)=>{requests.push({url,options});return fetcher?fetcher(url,options):{ok:true,json:async()=>({ok:true,requestId:options.body.get('requestId')})};}
   });
-  vm.runInContext(script.replace("const APPS_SCRIPT_URL = '';",'const APPS_SCRIPT_URL = '+JSON.stringify(endpoint)+';'),context);
+  vm.runInContext(script.replace(/const APPS_SCRIPT_URL = [^;]*;/,'const APPS_SCRIPT_URL = '+JSON.stringify(endpoint)+';'),context);
   return {elements,values,requests,form,open:()=>form.emit('submit'),send:()=>elements['send-registration'].emit('click'),timeout:()=>timer()};
 }
 test('empty or invalid endpoint allows preview but blocks all network writes',async()=>{

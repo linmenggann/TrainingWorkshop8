@@ -129,9 +129,9 @@
   </dialog>
   <script>
     'use strict';
-    // 部署 Code.gs 後，將 Google Apps Script /exec 網址貼入此處。
+    // 已設定工作坊報名收件網址；更換部署時請同步更新此處。
     // Google Sheets 網址不是收件網址；不需要 API key，也不要放 OAuth 憑證。
-    const APPS_SCRIPT_URL = '';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzeu4Mklrokq8bTuB4mMNcPswnmeulBZxCsZfkop6ldeH1c3yJS62qxFergHcjc9MZzCg/exec';
     const endpointReady = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(APPS_SCRIPT_URL);
     const form = document.getElementById('workshop-form');
     const preview = document.getElementById('preview');
